@@ -42,6 +42,8 @@ toRoman num = prefix ++ (concat . reverse . snd $ foldl combineToRoman (abs num,
 -- Convert roman numerals into arabic when possible.
 -- Note that this function returns valid results also for "IIII", "XLX" or similar
 --
+-- >>> fromRoman ""
+-- Just 0
 -- >>> fromRoman "I"
 -- Just 1
 -- >>> fromRoman "iv"
@@ -73,6 +75,8 @@ fromRoman n = (*) <$> Just multiplier <*> M.foldM combineFromRoman 0 tokens
 -- |
 -- Convert roman numerals into arabic when possible. Strict version.
 --
+-- >>> fromRoman' ""
+-- Just 0
 -- >>> fromRoman' "I"
 -- Just 1
 -- >>> fromRoman' "iv"
