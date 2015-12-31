@@ -13,6 +13,8 @@ list = [(1000,"M"),(900,"CM"),(500,"D"),(400,"CD"),(100,"C"),(90,"XC"),(50,"L"),
 -- |
 -- Convert arabic number into roman numerals.
 --
+-- >>> toRoman (-0)
+-- ""
 -- >>> toRoman 1
 -- "I"
 -- >>> toRoman 2
@@ -43,6 +45,8 @@ toRoman num = prefix ++ (concat . reverse . snd $ foldl combineToRoman (abs num,
 -- Note that this function returns valid results also for "IIII", "XLX" or similar
 --
 -- >>> fromRoman ""
+-- Just 0
+-- >>> fromRoman "-"
 -- Just 0
 -- >>> fromRoman "I"
 -- Just 1
@@ -77,6 +81,8 @@ fromRoman n = (*) <$> Just multiplier <*> M.foldM combineFromRoman 0 tokens
 --
 -- >>> fromRoman' ""
 -- Just 0
+-- >>> fromRoman' "-"
+-- Nothing
 -- >>> fromRoman' "I"
 -- Just 1
 -- >>> fromRoman' "iv"
@@ -100,6 +106,7 @@ fromRoman n = (*) <$> Just multiplier <*> M.foldM combineFromRoman 0 tokens
 -- >>> fromRoman' "MMMMI"
 -- Just 4001
 fromRoman' :: String -> Maybe Int
+fromRoman' "-" = Nothing
 fromRoman' n 
       | input == maybe "" toRoman arabic = arabic
       | otherwise = Nothing
