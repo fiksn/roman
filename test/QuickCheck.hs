@@ -2,9 +2,9 @@ import Roman
 import Test.QuickCheck
 import Data.Maybe(fromMaybe)
 
-prop_positivesHaveReverse :: Positive Int -> Bool
-prop_positivesHaveReverse n = n == Positive actual
-           where reversed = (fromRoman' . toRoman . getPositive) n
+prop_nonZerosHaveReverse :: NonZero Int -> Bool
+prop_nonZerosHaveReverse n = n == NonZero actual
+           where reversed = (fromRoman' . toRoman . getNonZero) n
                  actual = fromMaybe (error "fail") reversed 
 
-main = quickCheck prop_positivesHaveReverse
+main = quickCheck prop_nonZerosHaveReverse

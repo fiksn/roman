@@ -21,8 +21,8 @@ list = [(1000,"M"),(900,"CM"),(500,"D"),(400,"CD"),(100,"C"),(90,"XC"),(50,"L"),
 -- "IV"
 -- >>> toRoman 5
 -- "V"
--- >>> toRoman 6
--- "VI"
+-- >>> toRoman (-6)
+-- "-VI"
 -- >>> toRoman 2457
 -- "MMCDLVII"
 -- >>> toRoman 645
@@ -34,8 +34,9 @@ list = [(1000,"M"),(900,"CM"),(500,"D"),(400,"CD"),(100,"C"),(90,"XC"),(50,"L"),
 -- >>> toRoman 4001
 -- "MMMMI"
 toRoman :: Int -> String 
-toRoman num = concat . reverse . snd $ foldl combineToRoman (num, []) descList
+toRoman num = prefix ++ (concat . reverse . snd $ foldl combineToRoman (abs num, []) descList)
   where descList = sortBy descending list  {- descList due to foldl -}
+        prefix = if num < 0 then "-" else ""
 
 -- |
 -- Convert roman numerals into arabic when possible.
@@ -51,6 +52,8 @@ toRoman num = concat . reverse . snd $ foldl combineToRoman (num, []) descList
 -- Just 50
 -- >>> fromRoman "LXL"
 -- Just 90
+-- >>> fromRoman "-VI"
+-- Just (-6)
 -- >>> fromRoman "GIV"
 -- Nothing
 -- >>> fromRoman "burek"
@@ -62,9 +65,10 @@ toRoman num = concat . reverse . snd $ foldl combineToRoman (num, []) descList
 -- >>> fromRoman "MMMMI"
 -- Just 4001
 fromRoman :: String -> Maybe Int
-fromRoman n = M.foldM combineFromRoman 0 tokens 
+fromRoman n = (*) <$> Just multiplier <*> M.foldM combineFromRoman 0 tokens
   where tokens = Map.toList $ Map.fromListWith (+) [(c, 1) | c <- romanTokenize input]
-        input = map toUpper n
+        input = if multiplier == 1 then map toUpper n else map toUpper $ tail n
+        multiplier = if null n || (head n /= '-') then 1 else -1
 
 -- |
 -- Convert roman numerals into arabic when possible. Strict version.
@@ -79,6 +83,8 @@ fromRoman n = M.foldM combineFromRoman 0 tokens
 -- Nothing
 -- >>> fromRoman' "LXL"
 -- Nothing
+-- >>> fromRoman' "-VI"
+-- Just (-6)
 -- >>> fromRoman' "GIV"
 -- Nothing
 -- >>> fromRoman' "burek"
@@ -103,6 +109,8 @@ fromRoman' n
 -- Just "MCMXCIX"
 -- >>> convert "MCMXCIX"
 -- Just "1999"
+-- >>> convert "-MCMxCIX"
+-- Just "-1999"
 -- >>> convert "xix"
 -- Just "19"
 -- >>> convert "McM"
