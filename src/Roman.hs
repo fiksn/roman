@@ -1,4 +1,4 @@
-module Roman(toRoman, fromRoman, fromRoman', convert, list, romanChars) where
+module Roman(toRoman, fromRoman, fromRoman', convert, descList, romanChars) where
 
 import Data.List
 import Data.Char
@@ -6,7 +6,11 @@ import Data.Monoid
 import qualified Data.Map.Strict as Map
 import qualified Control.Monad as M
 
+list :: [(Int, String)]
 list = [(1000,"M"),(900,"CM"),(500,"D"),(400,"CD"),(100,"C"),(90,"XC"),(50,"L"),(40,"XL"),(10,"X"),(9,"IX"),(5,"V"),(4,"IV"),(1,"I")]
+
+descList :: [(Int, String)]
+descList = sortBy descending list
 
 {- Invoke tests with doctest -}
 
@@ -36,9 +40,8 @@ list = [(1000,"M"),(900,"CM"),(500,"D"),(400,"CD"),(100,"C"),(90,"XC"),(50,"L"),
 -- >>> toRoman 4001
 -- "MMMMI"
 toRoman :: Int -> String 
-toRoman num = prefix ++ (concat . reverse . snd $ foldl combineToRoman (abs num, []) descList)
-  where descList = sortBy descending list  {- descList due to foldl -}
-        prefix = if num < 0 then "-" else ""
+toRoman num = prefix ++ (concat . reverse . snd $ foldl combineToRoman (abs num, []) descList) {- descList due to foldl -}
+  where prefix = if num < 0 then "-" else ""
 
 -- |
 -- Convert roman numerals into arabic when possible.
@@ -54,6 +57,8 @@ toRoman num = prefix ++ (concat . reverse . snd $ foldl combineToRoman (abs num,
 -- Just 4
 -- >>> fromRoman "IIII"
 -- Just 4
+-- >>> fromRoman "IXIV"
+-- Just 13
 -- >>> fromRoman "XLX"
 -- Just 50
 -- >>> fromRoman "LXL"
@@ -88,6 +93,8 @@ fromRoman n = (*) <$> Just multiplier <*> M.foldM combineFromRoman 0 tokens
 -- >>> fromRoman' "iv"
 -- Just 4
 -- >>> fromRoman' "IIII"
+-- Nothing
+-- >>> fromRoman' "IXIV"
 -- Nothing
 -- >>> fromRoman' "XLX"
 -- Nothing
@@ -142,14 +149,15 @@ convert input = getFirst $
               num <- readMaybe input :: Maybe Int  
               Just $ toRoman num)
 
+romanChars :: String
 romanChars = reverse [toUpper . head $ s | (_, s) <- descList, length s == 1] 
-  where descList = sortBy descending list
 
 {------------------------------------------------------------------------------------------------------}
   
 {- Helper functions -}
 
-descending (a1, b1) (a2, b2) = compare a2 a1
+descending :: (Ord a, Ord b) => (a, b) -> (a, b) -> Ordering
+descending (a1, _) (a2, _) = compare a2 a1
 
 {- [String] of the resulting accumulator is reversed -}
 combineToRoman :: (Int, [String]) -> (Int, String) -> (Int, [String])
