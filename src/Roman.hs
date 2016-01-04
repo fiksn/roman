@@ -146,7 +146,7 @@ convert input = getFirst $
               Just $ show arabic) 
        `mappend` 
            First (do                       {- then also arabic -> roman -}
-              num <- readMaybe input :: Maybe Int  
+              num <- readMaybe input 
               Just $ toRoman num)
 
 romanChars :: String
